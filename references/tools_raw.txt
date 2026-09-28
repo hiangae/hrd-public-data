@@ -1,0 +1,180 @@
+### recommend_qualifications
+사용자의 경력·직무 키워드를 NCS 능력단위와 Q-Net 자격 종목에 연결해 근거가 있는 자격 후보를 추천합니다. 응시자격 판정이 아니라 탐색용 추천입니다. 예: '시설관리 경력에 맞는 자격 추천해줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"careerQuery": {"type": "string", "minLength": 2, "description": "현재 직무·경력·관심업무 설명"}, "limit": {"description": "추천 자격 수 (기본 5)", "type": "integer", "minimum": 1, "maximum": 10}}, "required": ["careerQuery"]}
+
+### build_career_roadmap
+경력·직무로 자격 후보를 추천하고, 최상위 후보가 어떤 법정 선임 자리로 이어지는지와 추가로 필요한 실무경력까지 한 번에 정리합니다. 자격 탐색과 법령 대조를 한 호출로 잇습니다. 예: '전기설비 시설관리 5년인데 뭘 따서 어디까지 갈 수 있어?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"careerQuery": {"type": "string", "minLength": 2, "description": "현재 직무·경력·관심업무"}, "experienceYears": {"description": "자격 취득 이후 보유한 실무경력(년). 입력하면 지금 선임 가능한 자리를 판정합니다.", "type": "number", "minimum": 0, "maximum": 50}, "limit": {"description": "자격 후보 수 (기본 3)", "type": "integer", "minimum": 1, "maximum": 5}}, "required": ["careerQuery"]}
+
+### check_legal_requirements
+국가자격으로 갈 수 있는 법정 선임 자리와 추가로 필요한 실무경력, 미선임 제재를 법령 조문 근거와 함께 조회합니다. 현재 전기안전관리법·산업안전보건법·화재예방법을 수록하고 있습니다. 법률 자문이 아니라 법령 조문 대조 결과입니다. 예: '전기기사로 갈 수 있는 선임 자리 알려줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"qualificationName": {"type": "string", "minLength": 2, "description": "자격증 이름 (예: '전기기사', '산업안전기사', '소방설비기사')"}, "experienceYears": {"description": "자격 취득 이후 보유한 실무경력(년). 입력하면 지금 선임 가능한 자리를 판정합니다.", "type": "number", "minimum": 0, "maximum": 50}}, "required": ["qualificationName"]}
+
+### search_qualification
+키워드로 국가자격 종목(자격증)을 검색해 정확한 종목명·종목코드·계열(기사/산업기사/기능사 등)·직무분야를 알려줍니다. 종목명이 불확실할 때 다른 도구보다 먼저 사용하세요. 예: '전기 관련 자격증 뭐 있어?', '조리 자격증 종류 알려줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"query": {"type": "string", "minLength": 1, "description": "검색 키워드 (예: '전기', '정보처리', '조리')"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}, "required": ["query"]}
+
+### get_exam_schedule
+국가자격시험의 회차별 원서접수 기간, 필기/실기 시험일, 합격자 발표일을 조회합니다. 자격증 이름만 알면 됩니다(종목코드 불필요). 기사·산업기사·기능사 등 국가기술자격은 등급별 공통 일정으로 안내될 수 있습니다. 예: '정보처리기사 접수 언제야?', '올해 전기기사 실기 시험일 알려줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"qualificationName": {"description": "자격증 이름 (예: '정보처리기사'). 전체 일정을 보려면 생략", "type": "string"}, "jmCd": {"description": "종목코드 (search_qualification 결과로 알 수 있음)", "type": "string"}, "year": {"description": "시행년도 (기본: 올해)", "type": "integer", "minimum": 2000, "maximum": 2100}, "category": {"description": "자격 구분 (기본: 국가기술자격)", "type": "string", "enum": ["국가기술자격", "과정평가형", "일학습병행", "국가전문자격"]}}}
+
+### get_qualification_info
+국가자격 종목의 개요, 수행직무, 진로 및 전망 등 상세정보를 조회합니다. 예: '정보처리기사는 뭐 하는 자격이야?', '전기기사 따면 어디 취업해?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"qualificationName": {"description": "자격증 이름 (예: '정보처리기사')", "type": "string"}, "jmCd": {"description": "종목코드 (이미 아는 경우)", "type": "string"}}}
+
+### get_exam_fee
+국가기술자격 종목의 필기·실기 응시수수료를 조회합니다. 예: '정보처리기사 응시료 얼마야?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"qualificationName": {"description": "자격증 이름 (예: '정보처리기사')", "type": "string"}, "jmCd": {"description": "종목코드 (이미 아는 경우)", "type": "string"}}}
+
+### get_pass_rate
+국가기술자격의 연도별·회차별 응시자 수, 합격자 수, 합격률을 조회합니다. 종목을 지정하지 않으면 국가기술자격 전체 총괄 통계를 보여줍니다. 예: '전기기사 합격률 어때?', '작년에 국가기술자격 몇 명이나 응시했어?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"qualificationName": {"description": "자격증 이름 (예: '전기기사'). 전체 통계는 생략", "type": "string"}, "jmCd": {"description": "종목코드 (이미 아는 경우)", "type": "string"}, "year": {"description": "기준년도 (기본: 작년 — 통계는 연도 마감 후 확정)", "type": "integer", "minimum": 2000, "maximum": 2100}}}
+
+### find_test_sites
+지역명으로 한국산업인력공단 지사와 소속 시험장을 찾습니다. 지사 주소·연락처와 시험장 목록을 알려줍니다. 예: '서울에 시험장 어디 있어?', '부산 CBT 시험장 알려줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"region": {"type": "string", "minLength": 1, "description": "지역명 또는 지사명 (예: '서울', '부산', '경기', '서울서부')"}}, "required": ["region"]}
+
+### get_disqualification_info
+국가자격 종목의 응시 결격사유와 유사종목 정보를 조회합니다. 예: '공인노무사 결격사유 있어?', '이 자격이랑 비슷한 자격 뭐 있어?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"qualificationName": {"type": "string", "minLength": 1, "description": "자격증 이름 (예: '공인노무사')"}}, "required": ["qualificationName"]}
+
+### get_exam_questions
+국가기술자격 시험의 공개문제(기출문제) 공고 목록을 조회합니다. 종목명으로 검색할 수 있습니다. 예: '제빵기능사 기출문제 있어?', '최근에 공개된 시험문제 뭐 있어?' 실제 문제 파일은 Q-Net(q-net.or.kr) 자료실에서 제목으로 검색해 내려받을 수 있습니다.
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"qualificationName": {"description": "자격증 이름 (예: '제빵기능사'). 생략하면 최근 공개문제 전체", "type": "string"}, "jmCd": {"description": "종목코드 (아는 경우)", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### search_overseas_jobs
+월드잡플러스의 해외취업 채용공고(현재 모집 중)를 국가·직종·키워드로 검색합니다. 예: '일본 IT 해외취업 공고 있어?', '싱가포르에서 일할 수 있는 자리 찾아줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"query": {"description": "키워드 (공고명·회사명·직종에서 검색)", "type": "string"}, "country": {"description": "국가명 (예: '일본', '미국', '베트남')", "type": "string"}, "jobField": {"description": "직종 키워드 (예: 'IT', '간호', '조리')", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### get_overseas_employment_stats
+해외취업 통계를 조회합니다. 기본은 연도·국가별, monthly=월별 추이, dimension으로 세부 차원 선택 — job(직종별)·age(연령별)·training(연수 참여)·placement(알선)·pipeline(단계별 구직)·training_jobs(연수 취업)·returnees(국내복귀)·resigned(퇴직). 예: '작년에 해외취업 몇 명이나 했어?', '직종별로 누가 많이 나가?', '연령대별 해외취업 분포'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"year": {"description": "연도 (기본: 올해, 없으면 작년 자동)", "type": "integer", "minimum": 2010, "maximum": 2100}, "country": {"description": "특정 국가만 보려면 (예: '일본') — 국가별 통계에만 적용", "type": "string"}, "monthly": {"description": "월별 추이로 보기 (국가 구분 없음, 2012년부터 제공)", "type": "boolean"}, "dimension": {"description": "세부 차원 (지정 시 country·monthly 무시)", "type": "string", "enum": ["job", "age", "training", "placement", "pipeline", "training_jobs", "returnees", "resigned", "monthly_country", "monthly_postings"]}, "limit": {"description": "세부 차원 결과 수 (기본 20)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### search_overseas_companies
+해외취업 연계 구인기업(진출기업·현지기업)을 국가·키워드로 검색합니다. 예: '베트남에 있는 한국 기업 알려줘', '물류 쪽 해외 기업'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"query": {"description": "키워드 (기업명·업종에서 검색)", "type": "string"}, "country": {"description": "국가명 (예: '인도네시아')", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### search_overseas_top_jobs
+공단이 선별한 해외취업 우수일자리(급여·비자 등 조건이 검증된 공고)를 국가·직종·키워드로 검색합니다. 일반 공고는 search_overseas_jobs를 쓰세요. 예: '캐나다 우수일자리 있어?', '검증된 일본 IT 공고 알려줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"country": {"description": "국가명 (예: '일본', '캐나다')", "type": "string"}, "jobField": {"description": "직종 키워드 (예: 'IT', '물류')", "type": "string"}, "company": {"description": "회사명 키워드", "type": "string"}, "query": {"description": "공고명 키워드", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### get_overseas_job_fairs
+해외취업 설명회(온라인·지역별)와 해외취업아카데미 프로그램 일정을 조회합니다. 예: '해외취업 설명회 언제 해?', '온라인으로 들을 수 있는 해외취업 교육 있어?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"query": {"description": "설명회명·장소 키워드", "type": "string"}, "includePast": {"description": "지난 일정도 포함 (기본 false — 예정된 것만)", "type": "boolean"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### get_overseas_country_info
+국가별 해외취업·진출 정보(비자·현지 정보) 안내 페이지 링크를 알려줍니다. 예: '뉴질랜드 취업 비자 정보 어디서 봐?', '미국 진출 정보 알려줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"country": {"description": "국가명 (생략하면 전체 목록)", "type": "string"}}}
+
+### get_overseas_hiring_stats
+해외 구인기업별 구인 인원수 통계를 조회합니다. 기업명으로 검색할 수 있습니다. 예: '해외 구인 수요 얼마나 돼?', '이 회사 몇 명 뽑아?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"company": {"description": "기업명 키워드 (생략하면 전체 요약)", "type": "string"}}}
+
+### get_overseas_settlement_support
+해외취업 정착지원금 지급 실적을 국가별·직종별·차수별로 조회합니다. 예: '정착지원금 어느 나라에 많이 나갔어?', '직종별 정착지원금 실적 보여줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"year": {"description": "연도 (기본: 올해, 없으면 작년 자동 — 국가별·직종별에 적용)", "type": "integer", "minimum": 2013, "maximum": 2100}, "groupBy": {"description": "nation(국가별)·job(직종별)·round(차수별)·monthly(월별). 기본 nation", "type": "string", "enum": ["nation", "job", "round", "monthly"]}, "limit": {"description": "최대 결과 수 (기본 20)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### search_overseas_resources
+해외취업 관련 콘텐츠와 프로그램을 종류별로 검색합니다 — 뉴스, What's New 공지, 가이드북(PDF), 성공수기, 멘토, 멘토링 Q&A, 아카데미 교육, 출국전 오리엔테이션, 인턴 공모전. 예: '해외취업 가이드북 있어?', '독일 취업 성공수기 보여줘', '해외취업 멘토 누구 있어?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"kind": {"type": "string", "enum": ["news", "whatsnew", "guidebook", "success", "mentor", "mentoring", "academy", "orientation", "contest"], "description": "news(진출뉴스)·whatsnew(공지)·guidebook(가이드북PDF)·success(성공수기)·mentor(멘토)·mentoring(멘토링Q&A)·academy(아카데미)·orientation(오리엔테이션)·contest(인턴공모전)"}, "query": {"description": "제목·국가 등 키워드", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}, "required": ["kind"]}
+
+### search_kmove_programs
+해외취업 연계 K-Move 스쿨(연수과정)과 해외인턴 프로그램을 검색합니다. 예: '일본 취업 연계 연수과정 있어?', '해외인턴 프로그램 뭐 있어?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"query": {"description": "과정명·기관·직종 키워드", "type": "string"}, "country": {"description": "국가명 (예: '일본')", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### search_ncs
+NCS(국가직무능력표준) 능력단위 약 15,000건을 키워드로 검색합니다. 직무에 필요한 능력·수준·분류를 알 수 있어 취업 준비, 직무 탐색, 교육과정 설계에 유용합니다. 첫 호출은 데이터 수집 때문에 다소 느릴 수 있습니다. 예: '데이터 분석 직무에 필요한 능력이 뭐야?', 'NCS에서 보험 관련 직무 찾아줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"query": {"type": "string", "minLength": 1, "description": "검색 키워드 (능력단위명·직무 분류·정의에서 검색)"}, "limit": {"description": "최대 결과 수 (기본 10)", "type": "integer", "minimum": 1, "maximum": 30}}, "required": ["query"]}
+
+### get_ncs_related_qualifications
+특정 NCS 능력단위를 포함하는 자격 종목(과정평가형·일학습병행)과 교육훈련 기준시간을 조회합니다. 능력단위코드(예: 2001010101_19v4) 또는 키워드를 주면 됩니다 — 키워드는 NCS 검색 1순위 능력단위로 해석합니다. 예: '빅데이터 분석 능력단위로 딸 수 있는 자격 있어?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"unit": {"type": "string", "minLength": 1, "description": "NCS 능력단위코드 또는 키워드 (예: '2001010101_19v4', '빅데이터 분석')"}}, "required": ["unit"]}
+
+### search_ncs_learning_materials
+NCS 학습자료를 종류별로 검색합니다 — module(학습모듈 교재), course(훈련과정 기준), curriculum(교육과정), elearning(이러닝 영상), usage(활용자료), positionLink(직급연계), sqf(산업별역량체계). 분야(대분류)는 이름이나 코드로 지정: 10 영업판매, 11 경비·청소, 12 이용·숙박·여행·오락·스포츠, 13 음식서비스, 14 건설, 15 기계, 16 재료, 17 화학·바이오, 18 섬유·의복, 19 전기·전자, 20 정보통신, 21 식품가공, 22 인쇄·목재·가구·공예, 23 환경·에너지·안전, 24 농림어업, 01 사업관리, 02 경영·회계·사무, 03 금융·보험, 04 교육·자연·사회과학, 05 법률·경찰·소방·교도·국방, 06 보건·의료, 07 사회복지·종교, 08 문화·예술·디자인·방송, 09 운전·운송. elearning·sqf는 분야 생략 가능. 예: '정보통신 분야 NCS 교재 뭐 있어?', 'NCS 이러닝 영상 있어?', 'SQF에서 경영기획 직무 수준 알려줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"kind": {"description": "자료 종류 (기본 module)", "type": "string", "enum": ["module", "course", "curriculum", "elearning", "usage", "positionLink", "sqf"]}, "field": {"description": "NCS 대분류 (예: '정보통신', '기계', '20') — elearning·sqf 외에는 필수", "type": "string"}, "query": {"description": "키워드", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### search_blind_hiring
+NCS 기반 블라인드 채용을 진행하는 기업의 공고를 기업명으로 검색합니다. 예: '삼성 블라인드 채용 공고 있어?', 'NCS 채용하는 회사 공고 찾아줘 (기업명 필요)'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"company": {"type": "string", "minLength": 1, "description": "기업명 키워드 (필수 — 이 API는 기업명 검색만 지원)"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}, "required": ["company"]}
+
+### get_ncs_core_competencies
+특정 NCS 분야(대분류)에서 요구되는 직업기초능력(의사소통·수리·문제해결 등)을 빈도순으로 집계해 보여줍니다. 예: '정보통신 분야에서 중요한 직업기초능력이 뭐야?', 'IT 취업에 필요한 기초 역량 알려줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"field": {"type": "string", "minLength": 1, "description": "NCS 대분류 (예: '정보통신', '건설', '13')"}}, "required": ["field"]}
+
+### get_ncs_classification
+NCS 분류체계를 조회합니다. level을 생략하면 대·중·소·세분류가 각각 몇 개인지 요약하고, level을 지정하면 해당 단계의 코드·명칭 목록을 보여줍니다. 상위 분류로 범위를 좁힐 수 있습니다. 능력단위에서 역산하지 않고 분류체계 자체를 최신 차수 기준으로 조회합니다. 예: 'NCS 세분류가 몇 개야?', '정보통신 대분류 아래 중분류 알려줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"level": {"description": "조회할 분류 단계 (생략하면 전체 개수 요약)", "type": "string", "enum": ["대분류", "중분류", "소분류", "세분류"]}, "field": {"description": "대분류 이름 또는 코드로 범위 좁히기 — 10 영업판매, 11 경비·청소, 12 이용·숙박·여행·오락·스포츠, 13 음식서비스, 14 건설, 15 기계, 16 재료, 17 화학·바이오, 18 섬유·의복, 19 전기·전자, 20 정보통신, 21 식품가공, 22 인쇄·목재·가구·공예, 23 환경·에너지·안전, 24 농림어업, 01 사업관리, 02 경영·회계·사무, 03 금융·보험, 04 교육·자연·사회과학, 05 법률·경찰·소방·교도·국방, 06 보건·의료, 07 사회복지·종교, 08 문화·예술·디자인·방송, 09 운전·운송", "type": "string"}, "mclasCd": {"description": "중분류 코드 2자리 (예: '01') — 소분류·세분류를 좁힐 때", "type": "string"}, "sclasCd": {"description": "소분류 코드 2자리 — 세분류를 좁힐 때", "type": "string"}, "query": {"description": "분류명 키워드 필터", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 30)", "type": "integer", "minimum": 1, "maximum": 100}}}
+
+### search_course_qualifications
+과정평가형으로 취득 가능한 국가기술자격을 검색합니다. 과정평가형은 검정시험 대신 지정 교육·훈련과정을 이수하고 내·외부 평가로 자격을 취득하는 제도입니다. 예: '시험 안 보고 정보처리산업기사 딸 수 있어?', '과정평가형 자격 뭐 있어?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"query": {"description": "종목명·분야 키워드 (생략하면 전체 목록)", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 20)", "type": "integer", "minimum": 1, "maximum": 100}}}
+
+### search_work_learning_qualifications
+일학습병행(일하면서 배우는 도제식 훈련) 자격 종목 약 2,800건을 검색합니다. 예: '일학습병행으로 딸 수 있는 자격 뭐 있어?', '전기 분야 일학습병행 종목 알려줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"query": {"description": "종목명·분야·수준 키워드 (생략하면 전체 요약)", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 20)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### search_dual_training_orgs
+과정평가형 자격·일학습병행 훈련과정을 운영하는 기관과 기업을 지역별로 검색합니다. 예: '서울에서 일학습병행 하는 회사 알려줘', '부산 과정평가형 교육기관 어디 있어?' 지역: 서울·경기·인천·강원·충북·충남·대전·경북·대구·전북·경남·울산·부산·광주·전남·제주
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"region": {"type": "string", "description": "지역명 (예: '서울', '경기', '부산')"}, "type": {"description": "제도 구분 (기본: 일학습병행)", "type": "string", "enum": ["과정평가형", "일학습병행"]}, "query": {"description": "기관/기업명·과정명·종목 키워드", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}, "required": ["region"]}
+
+### find_dual_exam_sites
+과정평가형·일학습병행 자격의 외부평가 시험장 정보를 조회합니다. 예: '과정평가형 외부평가 시험장 어디야?', '올해 일학습병행 외부평가 어디서 봐?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"year": {"description": "시행년도 (기본: 올해)", "type": "integer", "minimum": 2015, "maximum": 2100}, "type": {"description": "제도 구분 (생략하면 전체)", "type": "string", "enum": ["과정평가형", "일학습병행"]}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### get_dual_exam_fee
+과정평가형·일학습병행 자격 외부평가의 원서접수 수수료를 조회합니다. 예: '과정평가형 시험 응시료 얼마야?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"type": {"description": "제도 구분 (생략하면 전체)", "type": "string", "enum": ["과정평가형", "일학습병행"]}, "limit": {"description": "최대 결과 수 (기본 20)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### get_dual_exam_stats
+과정평가형·일학습병행 자격시험의 통계(회차·종목별 응시자/평균점수/점수분포, 연도별 총괄, 통계연보)를 조회합니다. 예: '과정평가형 합격자 얼마나 돼?', '직업상담사1급 과정평가형 응시 통계 보여줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"year": {"description": "연도 (생략하면 전체 연도)", "type": "integer", "minimum": 2015, "maximum": 2100}, "type": {"description": "제도 구분 (생략하면 전체)", "type": "string", "enum": ["과정평가형", "일학습병행"]}, "query": {"description": "종목명 등 키워드 (예: '직업상담사')", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### get_industry_training_stats
+업종별 기업의 직업능력개발 훈련 참여 통계(HRD 지수·교육비 투자율 등)와 지역(지사)별 직업진로교육 실시 현황을 조회합니다. 예: '제조업 기업들 직원 교육 얼마나 해?', '지역별 진로교육 얼마나 했어?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"kind": {"description": "industry(업종별 기업훈련, 기본)·careerEdu(지역별 진로교육)", "type": "string", "enum": ["industry", "careerEdu"]}, "query": {"description": "업종·지역 키워드 (생략하면 전체)", "type": "string"}}}
+
+### search_master_craftsmen
+대한민국명장 등 정부가 선정한 숙련기술인을 이름·분야·직종·지역으로 검색합니다. 예: '용접 분야 대한민국명장 누구야?', '기계 쪽 명장 몇 명이나 돼?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"query": {"description": "이름·분야·직종 키워드", "type": "string"}, "field": {"description": "분야/직종 (예: '기계', '용접', '조리')", "type": "string"}, "type": {"description": "구분 (예: '명장', '우수숙련기술인')", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### get_master_stats
+대한민국명장 등 숙련기술인의 유형별·분야별 인원 통계를 보여줍니다. 예: '대한민국명장 분야별로 몇 명이야?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"type": {"description": "구분 필터 (예: '명장'. 생략하면 전체 유형)", "type": "string"}}}
+
+### search_master_artworks
+대한민국명장 등 숙련기술인의 작품(마이스터넷 작품전시관)을 검색합니다. 예: '명장이 만든 금속공예 작품 있어?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"query": {"description": "작품명·주제 키워드", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### get_skill_stats
+지방기능경기대회 참가자 통계(지역·직종별)와 분야별 산업현장교수 선정 통계를 조회합니다. 예: '서울 기능경기대회 금형 직종에 몇 명 나왔어?', '산업현장교수 분야별 선정 현황'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"kind": {"type": "string", "enum": ["competition", "professor"], "description": "competition(기능경기 참가자)·professor(산업현장교수)"}, "query": {"description": "지역·직종 키워드 (기능경기에 적용)", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 20)", "type": "integer", "minimum": 1, "maximum": 50}}, "required": ["kind"]}
+
+### get_eps_topik_schedule
+외국인 고용허가제(EPS) 한국어능력시험(EPS-TOPIK)의 회차별 접수기간·시험일·발표일을 조회합니다. 국가명(영문)으로 필터할 수 있습니다. 예: 'EPS-TOPIK 네팔 일정 알려줘', '올해 EPS 시험 언제야?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"year": {"description": "연도 (생략하면 최신 회차부터)", "type": "integer", "minimum": 2007, "maximum": 2100}, "country": {"description": "국가 키워드 — 시험명이 영문이라 영문 권장 (예: 'Nepal', 'Vietnam')", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### find_eps_topik_sites
+EPS-TOPIK 시험을 보는 국가별 시험장과 원서 접수처(주소·전화)를 조회합니다. 예: '네팔 EPS 시험장 어디야?', '우즈베키스탄 접수처 연락처 알려줘'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"country": {"description": "국가명 (예: '네팔', '캄보디아'. 생략하면 전체)", "type": "string"}}}
+
+### search_eps_jobseekers
+고용허가제(EPS)로 국내 취업을 희망하는 외국인 구직자(마스킹 프로필)를 국적·직종·한국어능력으로 검색합니다. 예: '캄보디아 출신 구직자 있어?', '제조업 희망하는 외국인 근로자 몇 명이야?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"country": {"description": "국적 (예: '캄보디아', '네팔')", "type": "string"}, "jobField": {"description": "희망 직종 키워드 (예: '제조', '농축산')", "type": "string"}, "koreanLevel": {"description": "한국어 능력 (HIGH/MID/LOW)", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### get_eps_return_support_stats
+귀국지원 프로그램(해피리턴 등) 회원 통계를 조회합니다. 예: '귀국지원 회원이 얼마나 돼?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"limit": {"description": "최대 결과 수 (기본 20)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### get_eps_topik_materials
+EPS-TOPIK 학습용 공개문제·표준교재 자료 목록(듣기·읽기)을 보여줍니다. 예: 'EPS-TOPIK 공부 자료 뭐 있어?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {}}
+
+### search_eps_return_jobs
+한국 취업 경험이 있는 귀국 외국인근로자를 위한 본국 현지 채용공고(한국계 기업 등)를 검색합니다. 예: '귀국한 근로자가 지원할 수 있는 현지 일자리 있어?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"query": {"description": "기업명 등 키워드", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}}
+
+### get_eps_education_info
+외국인근로자(E-9 등) 취업교육 정보를 조회합니다 — 교육과정(programs), 교육장 위치·연락처(sites), 접수일정(schedule), 국가별 경력·학력 통계(careerStats). 예: '외국인 근로자 취업교육 어디서 받아?', '용접 교육과정 있어?'
+{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"kind": {"type": "string", "enum": ["programs", "sites", "schedule", "careerStats"], "description": "programs(교육과정)·sites(교육장)·schedule(접수일정)·careerStats(국가별 경력·학력)"}, "query": {"description": "키워드 (과정명·기관·지역 등)", "type": "string"}, "limit": {"description": "최대 결과 수 (기본 15)", "type": "integer", "minimum": 1, "maximum": 50}}, "required": ["kind"]}
+
